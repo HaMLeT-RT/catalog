@@ -1,9 +1,11 @@
 package hamlet.catalog;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
+import hamlet.catalog.entity.Category;
+import hamlet.catalog.entity.Product;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class CatalogApplication {
@@ -35,7 +37,51 @@ public class CatalogApplication {
         EntityManager manager = FACTORY.createEntityManager();
         try {
             manager.getTransaction().begin();
-            //CODE
+            TypedQuery<Category> query = manager.createQuery(
+                    "select c from Category c order by c.name", Category.class
+            );
+
+            Product newProduct = new Product();
+            List<Category> categories = query.getResultList();
+
+            for (Category category : categories) {
+                System.out.println(category.getName() + " [" + category.getId() + "]");
+            }
+
+            System.out.println("Выберите id категории, куда хотите добавить товар: ");
+            String choiceId = IN.nextLine();
+            while (true) {
+                if (!choiceId.matches("\\d+")) {
+                    System.out.println("Неверный формат!");
+                } else {
+                    break;
+                }
+                System.out.println("Выберите id категории: ");
+                choiceId = IN.nextLine();
+            }
+            System.out.println("Введите назвние товара: ");
+            String productName = IN.nextLine();
+            System.out.println("Введите описание товара: ");
+            String productDesc = IN.nextLine();
+            System.out.println("Введите цену товара: ");
+            String productPrice = IN.nextLine();
+            while (true) {
+                if (!productPrice.matches("\\d+")) {
+                    System.out.println("Неверный формат!");
+                } else {
+                    break;
+                }
+                System.out.println("Введите цену товара: ");
+                productPrice = IN.nextLine();
+            }
+
+            Category category = manager.find(Category.class, Long.parseLong(choiceId));
+            newProduct.setCategory(category);
+            newProduct.setName(productName);
+            newProduct.setDescription(productDesc);
+            newProduct.setPrice(Integer.parseInt(productPrice));
+
+            manager.persist(newProduct);
             manager.getTransaction().commit();
         } catch (Exception e) {
             manager.getTransaction().rollback();
