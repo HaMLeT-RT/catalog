@@ -1,12 +1,15 @@
 package hamlet.catalog;
 
 import hamlet.catalog.entity.Category;
+import hamlet.catalog.entity.Characteristic;
 import hamlet.catalog.entity.Product;
+import hamlet.catalog.entity.Value;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
 
 public class CatalogApplication {
     //27.05.21
@@ -80,8 +83,19 @@ public class CatalogApplication {
             newProduct.setName(productName);
             newProduct.setDescription(productDesc);
             newProduct.setPrice(Integer.parseInt(productPrice));
-
             manager.persist(newProduct);
+
+            List<Characteristic> characteristics = category.getCharacteristics();
+            for (Characteristic characteristic : characteristics){
+                Value newValue = new Value();
+                System.out.println(characteristic.getTitle());
+                System.out.println("Введите параметр: ");
+                String valueIn = IN.nextLine();
+                newValue.setProduct(newProduct);
+                newValue.setCharacteristic(characteristic);
+                newValue.setValue(valueIn);
+                manager.persist(newValue);
+            }
             manager.getTransaction().commit();
         } catch (Exception e) {
             manager.getTransaction().rollback();
