@@ -86,7 +86,7 @@ public class CatalogApplication {
             manager.persist(newProduct);
 
             List<Characteristic> characteristics = category.getCharacteristics();
-            for (Characteristic characteristic : characteristics){
+            for (Characteristic characteristic : characteristics) {
                 Value newValue = new Value();
                 System.out.println(characteristic.getTitle());
                 System.out.println("Введите параметр: ");
@@ -109,7 +109,42 @@ public class CatalogApplication {
         EntityManager manager = FACTORY.createEntityManager();
         try {
             manager.getTransaction().begin();
-            //CODE
+            System.out.println("Введите id товара, который хотите обновить: ");
+            String productId = IN.nextLine();
+            Product product = manager.find(Product.class, Long.parseLong(productId));
+            System.out.println("Введите имя товара: ");
+            String newName = IN.nextLine();
+            product.setName(newName);
+            System.out.println("Введите описание товара: ");
+            String newDesc = IN.nextLine();
+            product.setDescription(newDesc);
+            System.out.println("Введите цену товара: ");
+            String newPrice = IN.nextLine();
+            product.setPrice(Integer.parseInt(newPrice));
+
+            List<Characteristic> characteristics = product.getCategory().getCharacteristics();
+            for (Characteristic characteristic : characteristics) {
+                System.out.println(characteristic.getTitle() + ": ");
+                System.out.println("Обновите характеристику: ");
+                String valueIn = IN.nextLine();
+                TypedQuery<Value> query = manager.createQuery(
+                        "select v from Value v where v.product = ?1 and v.characteristic = ?2", Value.class
+                );
+                query.setParameter(1, product);
+                query.setParameter(2, characteristic);
+                query.setMaxResults(1);
+                List<Value> valueList = query.getResultList();
+                if (valueList.isEmpty()) {
+                    Value value = new Value();
+                    value.setValue(valueIn);
+                    value.setProduct(product);
+                    value.setCharacteristic(characteristic);
+                    manager.persist(value);
+                } else {
+                    Value value = valueList.get(0);
+                    value.setValue(valueIn);
+                }
+            }
             manager.getTransaction().commit();
         } catch (Exception e) {
             manager.getTransaction().rollback();
