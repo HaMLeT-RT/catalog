@@ -77,8 +77,7 @@ public class CatalogApplication {
             System.out.print("Введите цену товара: ");
             String productPrice = IN.nextLine();
             while (!productPrice.matches("\\d+")) {
-                System.out.println("Неверный формат!");
-                System.out.print("Введите цену товара: ");
+                System.out.print("Неверный формат! Введите еще раз: ");
                 productPrice = IN.nextLine();
             }
 
